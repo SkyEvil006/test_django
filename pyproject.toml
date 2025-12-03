@@ -1,0 +1,111 @@
+[tool.black]
+line-length = 120
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "migrations",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_any_unimported = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+check_untyped_defs = true
+strict_equality = true
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+
+[[tool.mypy.overrides]]
+module = [
+    "celery.*",
+]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "conf.settings.base"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "conf.settings.local"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+addopts = "-v --tb=short"
+
+[tool.poetry]
+name = "payout-service"
+version = "0.1.0"
+description = "REST API для управления заявками на выплату средств с асинхронной обработкой через Celery"
+authors = ["Andrey"]
+readme = "README.md"
+packages = [{include = "payouts"}, {include = "conf"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Django = "^4.2.7"
+djangorestframework = "^3.14.0"
+drf-spectacular = "^0.27.0"
+celery = {extras = ["redis"], version = "^5.3.4"}
+redis = "^4.6.0"
+psycopg2-binary = "^2.9.10"
+gunicorn = "^21.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-django = "^4.7.0"
+black = "^24.1.1"
+ruff = "^0.1.14"
+mypy = "^1.8.0"
+django-stubs = "^4.2.7"
+djangorestframework-stubs = "^3.14.5"
+celery-types = "^0.20.0"
+types-redis = "^4.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
